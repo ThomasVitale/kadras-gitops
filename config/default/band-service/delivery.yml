@@ -1,0 +1,60 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: band-service
+  labels:
+    app.kubernetes.io/part-of: band-service
+    apps.tanzu.vmware.com/has-tests: "true"
+    apps.tanzu.vmware.com/workload-type: web
+    app.kubernetes.io/component: run
+    carto.run/workload-name: band-service
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/min-scale: "1"
+        boot.spring.io/actuator: http://:8080/actuator
+        boot.spring.io/version: 2.7.3
+        conventions.carto.run/applied-conventions: |-
+          spring-boot-convention/spring-boot
+          spring-boot-convention/spring-boot-web
+          spring-boot-convention/spring-boot-actuator
+          spring-boot-convention/spring-boot-actuator-probes
+        developer.conventions/target-containers: workload
+      labels:
+        app.kubernetes.io/component: run
+        app.kubernetes.io/part-of: band-service
+        apps.tanzu.vmware.com/has-tests: "true"
+        apps.tanzu.vmware.com/workload-type: web
+        carto.run/workload-name: band-service
+        conventions.carto.run/framework: spring-boot
+    spec:
+      containers:
+      - env:
+        - name: JAVA_TOOL_OPTIONS
+          value: -Dmanagement.endpoints.web.base-path=/actuator -Dmanagement.health.probes.enabled=true -Dmanagement.server.port=8080 -Dserver.port=8080
+        image: ghcr.io/thomasvitale/carto/band-service-default@sha256:73ba0f91a71a6caa963a1cfc088c6f72edf145e07886234caaaa6639bd71a294
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+            scheme: HTTP
+        name: workload
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+            scheme: HTTP
+        resources:
+          limits:
+            cpu: "2"
+            memory: 756Mi
+          requests:
+            cpu: 100m
+            memory: 756Mi
+        securityContext:
+          runAsUser: 1000
+      serviceAccountName: default
