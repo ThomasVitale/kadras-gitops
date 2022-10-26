@@ -4,8 +4,8 @@ metadata:
   name: band-service
   labels:
     app.kubernetes.io/part-of: band-service
-    apps.tanzu.vmware.com/has-tests: "true"
-    apps.tanzu.vmware.com/workload-type: web
+    apps.kadras.io/has-tests: "true"
+    apps.kadras.io/workload-type: web
     app.kubernetes.io/component: run
     carto.run/workload-name: band-service
 spec:
@@ -13,30 +13,30 @@ spec:
     metadata:
       annotations:
         autoscaling.knative.dev/min-scale: "1"
-        boot.spring.io/actuator: http://:8080/actuator
-        boot.spring.io/version: 2.7.3
+        boot.spring.io/actuator: http://:8081/actuator
+        boot.spring.io/version: 3.0.0-RC1
         conventions.carto.run/applied-conventions: |-
           spring-boot-convention/spring-boot
+          spring-boot-convention/spring-boot-graceful-shutdown
           spring-boot-convention/spring-boot-web
           spring-boot-convention/spring-boot-actuator
           spring-boot-convention/spring-boot-actuator-probes
-        developer.conventions/target-containers: workload
       labels:
         app.kubernetes.io/component: run
         app.kubernetes.io/part-of: band-service
-        apps.tanzu.vmware.com/has-tests: "true"
-        apps.tanzu.vmware.com/workload-type: web
+        apps.kadras.io/has-tests: "true"
+        apps.kadras.io/workload-type: web
         carto.run/workload-name: band-service
         conventions.carto.run/framework: spring-boot
     spec:
       containers:
       - env:
         - name: JAVA_TOOL_OPTIONS
-          value: -Dmanagement.endpoints.web.base-path=/actuator -Dmanagement.health.probes.enabled=true -Dmanagement.server.port=8080 -Dserver.port=8080
-        image: ghcr.io/thomasvitale/carto/band-service-default@sha256:73ba0f91a71a6caa963a1cfc088c6f72edf145e07886234caaaa6639bd71a294
+          value: -Dmanagement.endpoint.health.probes.add-additional-paths=true -Dmanagement.endpoints.web.base-path=/actuator -Dmanagement.health.probes.enabled=true -Dmanagement.server.port=8081 -Dserver.lifecycle.timeout-per-shutdown-phase=24s -Dserver.port=8080 -Dserver.shutdown=graceful
+        image: ghcr.io/thomasvitale/carto/band-service-default@sha256:50fe6d6d52aa0d8d772f065c3d79b3f6c32bfc7b8ffc63d2ebf527060e0499f2
         livenessProbe:
           httpGet:
-            path: /actuator/health/liveness
+            path: /livez
             port: 8080
             scheme: HTTP
         name: workload
@@ -45,16 +45,18 @@ spec:
           protocol: TCP
         readinessProbe:
           httpGet:
-            path: /actuator/health/readiness
+            path: /readyz
             port: 8080
             scheme: HTTP
         resources:
           limits:
             cpu: "2"
-            memory: 756Mi
+            memory: 1Gi
           requests:
-            cpu: 100m
-            memory: 756Mi
+            cpu: 200m
+            memory: 1Gi
         securityContext:
           runAsUser: 1000
       serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+
