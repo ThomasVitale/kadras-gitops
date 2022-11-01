@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: band-service
   labels:
+    app.kubernetes.io/instance: band-service
     app.kubernetes.io/part-of: band-service
     apps.kadras.io/has-tests: "true"
     apps.kadras.io/workload-type: web
@@ -23,6 +24,7 @@ spec:
           spring-boot-convention/spring-boot-actuator-probes
       labels:
         app.kubernetes.io/component: run
+        app.kubernetes.io/instance: band-service
         app.kubernetes.io/part-of: band-service
         apps.kadras.io/has-tests: "true"
         apps.kadras.io/workload-type: web
@@ -33,7 +35,7 @@ spec:
       - env:
         - name: JAVA_TOOL_OPTIONS
           value: -Dmanagement.endpoint.health.probes.add-additional-paths=true -Dmanagement.endpoints.web.base-path=/actuator -Dmanagement.health.probes.enabled=true -Dmanagement.server.port=8081 -Dserver.lifecycle.timeout-per-shutdown-phase=24s -Dserver.port=8080 -Dserver.shutdown=graceful
-        image: ghcr.io/thomasvitale/carto/band-service-default@sha256:50fe6d6d52aa0d8d772f065c3d79b3f6c32bfc7b8ffc63d2ebf527060e0499f2
+        image: ghcr.io/thomasvitale/carto/band-service-default@sha256:2894b92df56a5c8c820378763f78b74ddbee3020d909c3fa0bd561509e9f6719
         livenessProbe:
           httpGet:
             path: /livez
@@ -50,7 +52,6 @@ spec:
             scheme: HTTP
         resources:
           limits:
-            cpu: "2"
             memory: 1Gi
           requests:
             cpu: 200m
