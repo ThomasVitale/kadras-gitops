@@ -1,0 +1,31 @@
+apiVersion: carto.run/v1alpha1
+kind: Deliverable
+metadata:
+  labels:
+    app.kubernetes.io/component: deliverable
+    app.kubernetes.io/instance: band-service
+    app.kubernetes.io/part-of: band-service
+    apps.kadras.io/deliverable-type: web
+    apps.kadras.io/has-tests: 'true'
+    apps.kadras.io/workload-type: web
+    carto.run/cluster-template-name: deliverable-template
+    carto.run/resource-name: deliverable
+    carto.run/supply-chain-name: supply-chain-web-testing-scanning
+    carto.run/template-kind: ClusterTemplate
+    carto.run/workload-name: band-service
+    carto.run/workload-namespace: default
+  name: band-service
+  namespace: default
+  uid: 5f0e3c48-968f-4819-a42c-4c4e98f82b30
+spec:
+  params:
+    - name: gitops_access_secret
+      value: git-secret
+    - name: gitops_sub_path
+      value: config/default/band-service
+  serviceAccountName: default
+  source:
+    git:
+      ref:
+        branch: main
+      url: 'https://github.com/thomasvitale/kadras-gitops.git'
