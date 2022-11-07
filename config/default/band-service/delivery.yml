@@ -3,7 +3,6 @@ kind: Service
 metadata:
   name: band-service
   labels:
-    app.kubernetes.io/instance: band-service
     app.kubernetes.io/part-of: band-service
     apps.kadras.io/has-tests: "true"
     apps.kadras.io/workload-type: web
@@ -24,7 +23,6 @@ spec:
           spring-boot-convention/spring-boot-actuator-probes
       labels:
         app.kubernetes.io/component: run
-        app.kubernetes.io/instance: band-service
         app.kubernetes.io/part-of: band-service
         apps.kadras.io/has-tests: "true"
         apps.kadras.io/workload-type: web
